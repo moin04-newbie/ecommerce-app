@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internet Permission -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    
     <application
-        android:label="another_apk"
+        android:label="TrendCart"  <!-- Changed from "another_apk" to "TrendCart" -->
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">  <!-- Add this attribute -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,165 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:another_apk/providers/products_provider.dart';
+import 'package:another_apk/widgets/product_grid.dart';
+import 'package:another_apk/widgets/app_drawer.dart';
+import 'package:another_apk/widgets/badge.dart';
+import 'package:another_apk/providers/cart_provider.dart';
+import 'package:another_apk/pages/cart_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  bool _shouldBounce = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
-  }
+class _HomePageState extends State<HomePage> {
+  String? _selectedCategory;
+  final TextEditingController _searchController = TextEditingController();
+  bool _onlyFavorites = false;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _searchController.dispose();
     super.dispose();
-  }
-
-  void _triggerBounce() {
-    setState(() {
-      _shouldBounce = true;
-    });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _shouldBounce = false;
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final productsData = Provider.of<ProductsProvider>(context);
+    final categories = productsData.categories;
+    
+    // Debug print categories
+    debugPrint('Available categories: $categories');
+    debugPrint('Selected category: $_selectedCategory');
+
     return Scaffold(
-      backgroundColor: Colors.yellow.shade300, // Bright color
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text("Welcome"),
-        backgroundColor: Colors.orangeAccent,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animated welcome message
-            FadeTransition(
-              opacity: _animation,
-              child: ScaleTransition(
-                scale: _animation,
-                child: const Text(
-                  "Welcome to My App!",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black26,
-                        offset: Offset(2, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
+        title: const Text(
+          'ShopEase',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(_onlyFavorites ? Icons.favorite : Icons.favorite_border),
+            onPressed: () {
+              setState(() {
+                _onlyFavorites = !_onlyFavorites;
+              });
+            },
+          ),
+          Consumer<CartProvider>(
+            builder: (_, cart, child) => BadgeWidget(
+              value: cart.itemCount.toString(),
+              child: IconButton(
+                icon: const Icon(Icons.shopping_cart_outlined),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(CartPage.routeName);
+                },
               ),
             ),
-            const SizedBox(height: 50),
-            
-            // Two buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+        ],
+      ),
+      drawer: const AppDrawer(),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            color: Colors.white,
+            child: Column(
               children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    textStyle: const TextStyle(fontSize: 20),
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search products',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   ),
-                  onPressed: _triggerBounce,
-                  child: const Text("Button 1"),
+                  onChanged: (value) {
+                    setState(() {});
+                  },
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    textStyle: const TextStyle(fontSize: 20),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 40,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: FilterChip(
+                          label: const Text('All'),
+                          selected: _selectedCategory == null,
+                          showCheckmark: false,
+                          backgroundColor: Colors.grey.shade100,
+                          selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          labelStyle: TextStyle(
+                            color: _selectedCategory == null
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.grey.shade800,
+                            fontWeight: _selectedCategory == null
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedCategory = null;
+                            });
+                          },
+                        ),
+                      ),
+                      ...categories.map((category) {
+                        final isSelected = _selectedCategory == category;
+                        // Debug print each category chip
+                        debugPrint('Category chip: $category, selected: $isSelected');
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: FilterChip(
+                            label: Text(category),
+                            selected: isSelected,
+                            showCheckmark: false,
+                            backgroundColor: Colors.grey.shade100,
+                            selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            labelStyle: TextStyle(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey.shade800,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            onSelected: (selected) {
+                              setState(() {
+                                // Store the exact category string from our list
+                                _selectedCategory = selected ? category : null;
+                                debugPrint('Category selected: $_selectedCategory');
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ),
-                  onPressed: _triggerBounce,
-                  child: const Text("Button 2"),
                 ),
               ],
             ),
-            
-            const SizedBox(height: 40),
-            
-            // Bouncing containers
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: _shouldBounce ? 120 : 100,
-                  width: _shouldBounce ? 120 : 100,
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: _shouldBounce ? 15 : 5,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Box 1",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ),
-                ),
-                
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: _shouldBounce ? 120 : 100,
-                  width: _shouldBounce ? 120 : 100,
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: _shouldBounce ? 15 : 5,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Box 2",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ),
-                ),
-              ],
+          ),
+          Expanded(
+            child: ProductGrid(
+              onlyFavorites: _onlyFavorites,
+              category: _selectedCategory,
+              searchQuery: _searchController.text,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
