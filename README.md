@@ -1,6 +1,6 @@
-# TrendCart
+# ShopEase
 
-TrendCart is a modern e-commerce mobile application built with Flutter. It offers a sleek, user-friendly shopping experience with features designed for both Gen Z and millennial users.
+ShopEase is a modern e-commerce mobile application built with Flutter. It offers a sleek, user-friendly shopping experience with features designed for both Gen Z and millennial users.
 
 
 ## Features
@@ -58,20 +58,7 @@ lib/
   └── main.dart        # App entry point
 ```
 
-## Screenshots
 
-<table>
-  <tr>
-    <td><img src="screenshots/home_screen.png" width="200"/></td>
-    <td><img src="screenshots/product_detail.png" width="200"/></td>
-    <td><img src="screenshots/cart.png" width="200"/></td>
-  </tr>
-  <tr>
-    <td><img src="screenshots/checkout.png" width="200"/></td>
-    <td><img src="screenshots/profile.png" width="200"/></td>
-    <td><img src="screenshots/orders.png" width="200"/></td>
-  </tr>
-</table>
 
 ## Contributing
 
@@ -91,8 +78,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Provider](https://pub.dev/packages/provider) - For state management
 - [Google Fonts](https://pub.dev/packages/google_fonts) - For typography
 
-## Contact
-
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
-
-Project Link: [https://github.com/yourusername/TrendCart](https://github.com/yourusername/TrendCart)
