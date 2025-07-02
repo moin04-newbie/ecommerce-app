@@ -2,7 +2,6 @@
 
 TrendCart is a modern e-commerce mobile application built with Flutter. It offers a sleek, user-friendly shopping experience with features designed for both Gen Z and millennial users.
 
-![TrendCart App Screenshot](screenshots/app_screenshot.png)
 
 ## Features
 
